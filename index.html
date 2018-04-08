@@ -1,0 +1,70 @@
+<html>
+<head>
+<title>Linear regression demo with Tensorflow.js</title>
+ 
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@0.6.1"></script>
+<script src="plot.js"></script>
+<script type="text/javascript">
+ 
+var a;
+var b;
+var c;
+var d;
+
+function start() {     
+    
+    // Generate some synthetic data for training.
+    var xPoints = [0,1,1.5,-1,-1.2,-1.6,2,2.5,2.6,-2,-1.8,-2,  -2,-1.8,-0.3,3,3.2,2.8,1,4,3.7,0.5, 4];
+    var yPoints = [0,2,  3,-1,-1.9,   -2,4,4.2,4.8,-3,-3.2,-4,-4.8,-5.6,-0.2,5,  4,   3,1,1,  0,0.5,-1];    
+       
+    var xs = tf.tensor1d(xPoints); 
+    var ys = tf.tensor1d(yPoints); 
+          
+    a = tf.scalar(Math.random()).variable();
+    b = tf.scalar(Math.random()).variable();
+    c = tf.scalar(Math.random()).variable();
+    d = tf.scalar(Math.random()).variable();
+    e = tf.scalar(Math.random()).variable();
+    
+    var power3 = tf.tensor(3).toInt();
+    var power4 = tf.tensor(4).toInt();
+    
+    // y = a * x^4 + b * x^3 + c * x^2 + d * x + e.        
+    var f = x => a.mul(x.pow(power4)).add(b.mul(x.pow(power3))).add(c.mul(x.square())).add(d.mul(x)).add(e);
+    
+    var loss = (pred, label) => pred.sub(label).square().mean();
+    
+    var learningRate = 0.0001;
+    var optimizer = tf.train.sgd(learningRate);
+    
+    // Train the model.
+    for (var i = 0; i < 700; i++) {
+       optimizer.minimize(() => loss(f(xs), ys));
+    }    
+    
+    // Make predictions.
+    console.log('a: ' + a.dataSync());
+    console.log('b: ' + b.dataSync());
+    console.log('c: ' + c.dataSync());
+    console.log('d: ' + d.dataSync());
+    console.log('e: ' + e.dataSync());
+         
+    var preds = f(xs).dataSync();
+    preds.forEach((pred, i) => {
+        console.log('pos: ' + i);
+        console.log('pred: ' + pred);
+    });    
+    
+    drawCurve();
+    drawPoints(xPoints,yPoints);
+  
+}
+ 
+</script>
+</head>
+ 
+<body onload="start()">
+<h2 style="color:blue; font-family:Arial;">Tensorflow.JS Simple Linear Regression With Plot</h2>
+<canvas id="canvas" width="702" height="702"></canvas>
+</body>
+</html>
